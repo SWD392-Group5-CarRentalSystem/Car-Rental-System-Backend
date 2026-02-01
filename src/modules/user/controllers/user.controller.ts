@@ -9,7 +9,9 @@ export const registerUser = async (
   const { username, email, phoneNumber, DOB, password, role } = req.body;
   try {
     let user = await User.findOne({ email });
-    if (user) {
+    let existingStaff = await Staff.findOne({ email });
+    let existingDriver = await Driver.findOne({ email });
+    if (user || existingStaff || existingDriver) {
       res.status(400).json({ message: "Email already exists" });
     }
     user = new User({ username, email, DOB, phoneNumber, password, role });
