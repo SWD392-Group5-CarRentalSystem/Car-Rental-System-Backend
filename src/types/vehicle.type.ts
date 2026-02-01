@@ -1,9 +1,11 @@
 import { ObjectId } from "mongodb";
 
+
+
 export interface IVehicle {
   _id: ObjectId;
   vehicleName: string;
-  vehicleType: string;
+  vehicleType: String;
   vehicleStatus: boolean;
   vehicleDetail: IVehicleDetail;
 }
