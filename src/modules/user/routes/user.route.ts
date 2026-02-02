@@ -8,6 +8,10 @@ import {
   getStaffById,
   updateStaff,
   deleteStaff,
+  getAllDrivers,
+  getDriverById,
+  updateDriver,
+  deleteDriver,
 } from "../controllers/user.controller";
 const router = express.Router();
 
@@ -311,5 +315,8 @@ router.delete("/staff/:id", deleteStaff);
  *         description: Bad request
  */
 router.post("/driver", createDriver);
-
+router.get("/driver", getAllDrivers);
+router.get("/driver/:id", getDriverById);
+router.put("/driver/:id", updateDriver);
+router.delete("/driver/:id", deleteDriver);
 export default router;

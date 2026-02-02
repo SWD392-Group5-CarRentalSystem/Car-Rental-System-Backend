@@ -26,7 +26,8 @@ apiRouter.use("/vehicle", vehicleRoutes);
 connectDB();
 
 const PORT = process.env.PORT;
-
+const SWAGGER_PORT = process.env.SWAGGER_PORT;
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Swagger is running at ${SWAGGER_PORT}`);
 });

@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { User, Staff, Driver } from "../models/user.model";
 import generateToken from "../../../utils/generateToken";
-import { staffService } from "../services/user.service";
+import { driverService, staffService } from "../services/user.service";
+//------------------------------Auth------------------------------
 export const registerUser = async (
   req: Request,
   res: Response,
@@ -54,7 +55,7 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
     res.status(500).send("Error at login");
   }
 };
-//----------------------Staff----------------
+//------------------------------Staff------------------------------
 export const createStaff = async (
   req: Request,
   res: Response,
@@ -113,7 +114,7 @@ export const getAllStaffs = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: error.message || "Error retrieving vehicle",
+      message: error.message || "Error retrieving staff",
     });
   }
 };
@@ -169,6 +170,7 @@ export const deleteStaff = async (req: Request, res: Response) => {
     });
   }
 };
+//------------------------------Driver------------------------------
 export const createDriver = async (
   req: Request,
   res: Response,
@@ -225,6 +227,73 @@ export const createDriver = async (
     res.status(500).json({
       success: false,
       message: err.message || "Error creating driver",
+    });
+  }
+};
+export const getAllDrivers = async (req: Request, res: Response) => {
+  try {
+    const drivers = await driverService.getAllDriver();
+    res.status(200).json({
+      success: true,
+      message: "Driver retrieved successfully",
+      data: drivers,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Error retrieving staff",
+    });
+  }
+};
+export const getDriverById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const driver = await driverService.getDriverByid(id as string);
+    res.status(200).json({
+      success: true,
+      message: "driver retrieved successfully",
+      data: driver,
+    });
+  } catch (error: any) {
+    res.status(error.message === "Driver not found" ? 404 : 500).json({
+      success: false,
+      message: error.message || "Error at retrieving Driver",
+    });
+  }
+};
+export const updateDriver = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const driverData = req.body;
+    const updatedDriver = await driverService.updateDriver(
+      id as string,
+      driverData,
+    );
+    res.status(200).json({
+      success: true,
+      message: "Driver udpated successfully",
+      data: updatedDriver,
+    });
+  } catch (error: any) {
+    res.status(error.message === "Driver not found" ? 404 : 500).json({
+      success: false,
+      message: error.message || "Error at updating Driver",
+    });
+  }
+};
+export const deleteDriver = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const deletedDriver = await driverService.deleteDriver(id as string);
+    res.status(200).json({
+      success: true,
+      message: "Driver deleted successfully",
+      data: deletedDriver
+    })
+  } catch (error: any) {
+    res.status(error.message === "Driver not found" ? 404 : 500).json({
+      success: false,
+      message: error.message || "Error deleting Driver",
     });
   }
 };
