@@ -315,8 +315,125 @@ router.delete("/staff/:id", deleteStaff);
  *         description: Bad request
  */
 router.post("/driver", createDriver);
+
+/**
+ * @swagger
+ * /auth/driver:
+ *   get:
+ *     summary: Get all drivers
+ *     tags: [Driver]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all drivers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Driver'
+ *       401:
+ *         description: Unauthorized
+ */
 router.get("/driver", getAllDrivers);
+
+/**
+ * @swagger
+ * /auth/driver/{id}:
+ *   get:
+ *     summary: Get driver by ID
+ *     tags: [Driver]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Driver ID
+ *     responses:
+ *       200:
+ *         description: Driver details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Driver'
+ *       404:
+ *         description: Driver not found
+ */
 router.get("/driver/:id", getDriverById);
+
+/**
+ * @swagger
+ * /auth/driver/{id}:
+ *   put:
+ *     summary: Update driver by ID
+ *     tags: [Driver]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Driver ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "Tran Van B Updated"
+ *               email:
+ *                 type: string
+ *                 example: "driver1.updated@carrental.com"
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "0907654322"
+ *               licenseNumber:
+ *                 type: number
+ *                 example: 987654321
+ *               Rating:
+ *                 type: number
+ *                 example: 4.5
+ *               is_active:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Driver updated successfully
+ *       404:
+ *         description: Driver not found
+ */
 router.put("/driver/:id", updateDriver);
+
+/**
+ * @swagger
+ * /auth/driver/{id}:
+ *   delete:
+ *     summary: Delete driver by ID
+ *     tags: [Driver]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Driver ID
+ *     responses:
+ *       200:
+ *         description: Driver deleted successfully
+ *       404:
+ *         description: Driver not found
+ */
 router.delete("/driver/:id", deleteDriver);
+
 export default router;
