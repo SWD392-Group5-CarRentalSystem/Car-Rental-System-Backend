@@ -1,8 +1,10 @@
 import express from "express";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
 import vehicleRoutes from "./modules/vehicle/routes/vehicle.route";
 import userRoutes from "./modules/user/routes/user.route";
 import connectDB from "./configs/db";
+import { swaggerSpec } from "./configs/swagger";
 
 const app = express();
 const apiRouter = express.Router();
@@ -10,6 +12,9 @@ const apiRouter = express.Router();
 //middleware
 app.use(cors());
 app.use(express.json());
+
+//swagger
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 //routes
 
