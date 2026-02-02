@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { User, Staff, Driver } from "../models/user.model";
 import generateToken from "../../../utils/generateToken";
+import { staffService } from "../services/user.service";
 export const registerUser = async (
   req: Request,
   res: Response,
@@ -53,7 +54,7 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
     res.status(500).send("Error at login");
   }
 };
-
+//----------------------Staff----------------
 export const createStaff = async (
   req: Request,
   res: Response,
@@ -101,7 +102,73 @@ export const createStaff = async (
     });
   }
 };
-
+export const getAllStaffs = async (req: Request, res: Response) => {
+  try {
+    const staffs = await staffService.getAllStaff();
+    res.status(200).json({
+      success: true,
+      message: "Staffs retrieved successfully",
+      data: staffs,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Error retrieving vehicle",
+    });
+  }
+};
+export const getStaffById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const staff = await staffService.getStaffById(id as string);
+    res.status(200).json({
+      success: true,
+      message: "Staff retrieved successfully",
+      data: staff,
+    });
+  } catch (error: any) {
+    res.status(error.message === "Staff not found" ? 404 : 500).json({
+      success: false,
+      message: error.message || "Error at retrieving Staff",
+    });
+  }
+};
+export const updateStaff = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const staffData = req.body;
+    const updatedStaff = await staffService.updateStaff(
+      id as string,
+      staffData,
+    );
+    res.status(200).json({
+      success: true,
+      message: "Staff updated successfully",
+      data: updatedStaff,
+    });
+  } catch (error: any) {
+    res.status(error.message === "Staff not found" ? 404 : 500).json({
+      success: false,
+      message: error.message || "Error updating staff",
+    });
+  }
+};
+export const deleteStaff = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const deleledStaff = staffService.deleteStaff(id as string);
+    res.status(200).json({
+      success: true,
+      message: "Staff deleted successfully",
+      data: deleledStaff,
+    });
+  } catch (error: any) {
+    res.status(error.message === "Staff not found" ? 404 : 500).json({
+      success: false,
+      message: error.message || "Error deleting Staff",
+    });
+  }
+};
 export const createDriver = async (
   req: Request,
   res: Response,
