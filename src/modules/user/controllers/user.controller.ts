@@ -49,6 +49,10 @@ export const loginUser = async (req: Request, res: Response): Promise<any> => {
       message: "login success",
       success: true,
       token,
+      data: {
+        _id: user.id,
+        username: user.username,
+      },
     });
   } catch (err: any) {
     console.error(err);
@@ -288,8 +292,8 @@ export const deleteDriver = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: "Driver deleted successfully",
-      data: deletedDriver
-    })
+      data: deletedDriver,
+    });
   } catch (error: any) {
     res.status(error.message === "Driver not found" ? 404 : 500).json({
       success: false,
