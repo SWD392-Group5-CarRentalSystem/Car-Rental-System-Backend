@@ -3,13 +3,22 @@ import { ObjectId } from "mongodb";
 type rentailType = "with_driver" | "self_drive";
 type status =
   | "pending"
-  | "confirm"
+  | "awaiting_deposit_confirmation"
+  | "confirmed"
   | "vehicle_delivered"
   | "in_progress"
   | "vehicle_returned"
   | "completed"
   | "cancelled"
   | "deposit_lost";
+
+type depositStatus =
+  | "not_paid"
+  | "pending_confirmation"
+  | "confirmed"
+  | "refunded"
+  | "lost";
+
 export interface Booking {
   _id: ObjectId;
   customerId: ObjectId;
@@ -22,4 +31,8 @@ export interface Booking {
   pickupLocation: string;
   status: status;
   totalAmount: String;
+  depositAmount: String;
+  depositStatus: depositStatus;
+  depositTransferredAt?: Date;
+  depositConfirmedAt?: Date;
 }

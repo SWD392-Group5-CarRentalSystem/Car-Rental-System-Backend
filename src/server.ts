@@ -3,8 +3,10 @@ import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import vehicleRoutes from "./modules/vehicle/routes/vehicle.route";
 import userRoutes from "./modules/user/routes/user.route";
+import bookingRoutes from "./modules/booking/routes/booking.route";
 import connectDB from "./configs/db";
 import { swaggerSpec } from "./configs/swagger";
+import passport from "passport";
 
 const app = express();
 const apiRouter = express.Router();
@@ -12,7 +14,7 @@ const apiRouter = express.Router();
 //middleware
 app.use(cors());
 app.use(express.json());
-
+app.use(passport.initialize());
 //swagger
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -21,6 +23,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/v1", apiRouter);
 apiRouter.use("/auth", userRoutes);
 apiRouter.use("/vehicle", vehicleRoutes);
+apiRouter.use("/booking", bookingRoutes);
 
 //connectDB
 connectDB();
