@@ -18,7 +18,7 @@ export const bookingService = {
     try {
       const bookings = await BookingModel.find({})
         .populate("customerId", "username email phoneNumber")
-        .populate("vehicleId", "vehicleName vehicleType")
+        .populate("vehicleId", "vehicleName vehicleType price vehicleDetail")
         .populate("driverId", "username phoneNumber Rating")
         .sort({ createdAt: -1 });
       return bookings;
@@ -32,7 +32,7 @@ export const bookingService = {
     try {
       const booking = await BookingModel.findById(id)
         .populate("customerId", "username email phoneNumber")
-        .populate("vehicleId", "vehicleName vehicleType")
+        .populate("vehicleId", "vehicleName vehicleType price vehicleDetail")
         .populate("driverId", "username phoneNumber Rating");
       if (!booking) {
         throw new Error("Booking not found");
@@ -47,7 +47,7 @@ export const bookingService = {
   async getBookingsByCustomerId(customerId: string) {
     try {
       const bookings = await BookingModel.find({ customerId })
-        .populate("vehicleId", "vehicleName vehicleType")
+        .populate("vehicleId", "vehicleName vehicleType price vehicleDetail")
         .populate("driverId", "username phoneNumber Rating")
         .sort({ createdAt: -1 });
       return bookings;
@@ -61,7 +61,7 @@ export const bookingService = {
     try {
       const bookings = await BookingModel.find({ driverId })
         .populate("customerId", "username email phoneNumber")
-        .populate("vehicleId", "vehicleName vehicleType")
+        .populate("vehicleId", "vehicleName vehicleType price vehicleDetail")
         .sort({ createdAt: -1 });
       return bookings;
     } catch (error) {
@@ -74,7 +74,7 @@ export const bookingService = {
     try {
       const bookings = await BookingModel.find({ status })
         .populate("customerId", "username email phoneNumber")
-        .populate("vehicleId", "vehicleName vehicleType")
+        .populate("vehicleId", "vehicleName vehicleType price vehicleDetail")
         .populate("driverId", "username phoneNumber Rating")
         .sort({ createdAt: -1 });
       return bookings;
@@ -95,7 +95,7 @@ export const bookingService = {
         },
       )
         .populate("customerId", "username email phoneNumber")
-        .populate("vehicleId", "vehicleName vehicleType")
+        .populate("vehicleId", "vehicleName vehicleType price vehicleDetail")
         .populate("driverId", "username phoneNumber Rating");
       if (!updatedBooking) {
         throw new Error("Booking not found");
@@ -118,7 +118,7 @@ export const bookingService = {
         },
       )
         .populate("customerId", "username email phoneNumber")
-        .populate("vehicleId", "vehicleName vehicleType")
+        .populate("vehicleId", "vehicleName vehicleType price vehicleDetail")
         .populate("driverId", "username phoneNumber Rating");
       if (!updatedBooking) {
         throw new Error("Booking not found");

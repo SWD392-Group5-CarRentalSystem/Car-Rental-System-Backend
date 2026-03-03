@@ -12,6 +12,8 @@ import {
   getDriverById,
   updateDriver,
   deleteDriver,
+  getUserById,
+  updateUser,
 } from "../controllers/user.controller";
 const router = express.Router();
 
@@ -435,5 +437,61 @@ router.put("/driver/:id", updateDriver);
  *         description: Driver not found
  */
 router.delete("/driver/:id", deleteDriver);
+
+/**
+ * @swagger
+ * /auth/user/{id}:
+ *   get:
+ *     summary: Get user (customer) by ID
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User details
+ *       404:
+ *         description: User not found
+ */
+router.get("/user/:id", getUserById);
+
+/**
+ * @swagger
+ * /auth/user/{id}:
+ *   put:
+ *     summary: Update user (customer) profile
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phoneNumber:
+ *                 type: string
+ *               DOB:
+ *                 type: string
+ *                 format: date
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       404:
+ *         description: User not found
+ */
+router.put("/user/:id", updateUser);
 
 export default router;

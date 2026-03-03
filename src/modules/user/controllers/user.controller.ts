@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { User, Staff, Driver } from "../models/user.model";
 import generateToken from "../../../utils/generateToken";
-import { driverService, staffService } from "../services/user.service";
+import { customerService, driverService, staffService } from "../services/user.service";
 //------------------------------Auth------------------------------
 export const registerUser = async (
   req: Request,
@@ -36,22 +36,42 @@ export const registerUser = async (
 export const loginUser = async (req: Request, res: Response): Promise<any> => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
-    if (!user) {
+    // Try User (customer) collection first, then Staff, then Driver
+    let foundUser: any = await User.findOne({ email });
+    let foundRole = "customer";
+
+    if (!foundUser) {
+      foundUser = await Staff.findOne({ email });
+      if (foundUser) foundRole = foundUser.role || "staff";
+    } else {
+      foundRole = foundUser.role || "customer";
+    }
+
+    if (!foundUser) {
+      foundUser = await Driver.findOne({ email });
+      if (foundUser) foundRole = foundUser.role || "driver";
+    }
+
+    if (!foundUser) {
       return res.status(400).json({ message: "Email doesnt exist" });
     }
-    const isMatch = await bcrypt.compare(password, user.password);
+
+    const isMatch = await bcrypt.compare(password, foundUser.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid Password" });
     }
-    const token = generateToken(user);
+
+    // Gán role vào object để generateToken đọc được
+    foundUser.role = foundRole;
+    const token = generateToken(foundUser);
     res.status(200).json({
       message: "login success",
       success: true,
       token,
       data: {
-        _id: user.id,
-        username: user.username,
+        _id: foundUser.id ?? foundUser._id,
+        username: foundUser.username,
+        role: foundRole,
       },
     });
   } catch (err: any) {
@@ -298,6 +318,39 @@ export const deleteDriver = async (req: Request, res: Response) => {
     res.status(error.message === "Driver not found" ? 404 : 500).json({
       success: false,
       message: error.message || "Error deleting Driver",
+    });
+  }
+};
+//------------------------------Customer / User------------------------------
+export const getUserById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const user = await customerService.getUserById(id as string);
+    res.status(200).json({
+      success: true,
+      message: "User retrieved successfully",
+      data: user,
+    });
+  } catch (error: any) {
+    res.status(error.message === "User not found" ? 404 : 500).json({
+      success: false,
+      message: error.message || "Error retrieving user",
+    });
+  }
+};
+export const updateUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const updated = await customerService.updateUser(id as string, req.body);
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: updated,
+    });
+  } catch (error: any) {
+    res.status(error.message === "User not found" ? 404 : 500).json({
+      success: false,
+      message: error.message || "Error updating user",
     });
   }
 };

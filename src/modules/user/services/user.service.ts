@@ -1,5 +1,5 @@
-import { IDriver, IStaff } from "../../../types/user.type";
-import { Driver, Staff } from "../models/user.model";
+import { ICustomer, IDriver, IStaff } from "../../../types/user.type";
+import { Driver, Staff, User } from "../models/user.model";
 
 export const staffService = {
   async getAllStaff() {
@@ -86,6 +86,30 @@ export const driverService = {
       if (!deleteDriver) {
         throw new Error("Driver not found");
       }
+    } catch (error) {
+      throw error;
+    }
+  },
+};
+
+export const customerService = {
+  async getUserById(id: string) {
+    try {
+      const user = await User.findById(id).select("-password");
+      if (!user) throw new Error("User not found");
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  },
+  async updateUser(id: string, userData: Partial<ICustomer>) {
+    try {
+      const updated = await User.findByIdAndUpdate(id, userData, {
+        new: true,
+        runValidators: true,
+      }).select("-password");
+      if (!updated) throw new Error("User not found");
+      return updated;
     } catch (error) {
       throw error;
     }

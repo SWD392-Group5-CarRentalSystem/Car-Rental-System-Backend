@@ -194,6 +194,132 @@ router.post("/", createBooking);
  */
 router.get("/", getAllBookings);
 
+// Specific sub-routes MUST be registered before /:id to avoid Express matching "customer", "driver", "status" as an id
+
+/**
+ * @swagger
+ * /booking/customer/{customerId}:
+ *   get:
+ *     summary: Get all bookings by customer ID
+ *     tags: [Booking]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: customerId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Customer (User) ID
+ *     responses:
+ *       200:
+ *         description: List of bookings for the customer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *                 count:
+ *                   type: number
+ *       500:
+ *         description: Server error
+ */
+router.get("/customer/:customerId", getBookingsByCustomerId);
+
+/**
+ * @swagger
+ * /booking/driver/{driverId}:
+ *   get:
+ *     summary: Get all bookings by driver ID
+ *     tags: [Booking]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: driverId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Driver ID
+ *     responses:
+ *       200:
+ *         description: List of bookings for the driver
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *                 count:
+ *                   type: number
+ *       500:
+ *         description: Server error
+ */
+router.get("/driver/:driverId", getBookingsByDriverId);
+
+/**
+ * @swagger
+ * /booking/status/{status}:
+ *   get:
+ *     summary: Get all bookings by status
+ *     tags: [Booking]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: status
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - pending
+ *             - awaiting_deposit_confirmation
+ *             - confirmed
+ *             - vehicle_delivered
+ *             - in_progress
+ *             - vehicle_returned
+ *             - completed
+ *             - cancelled
+ *             - deposit_lost
+ *         description: Booking status to filter by
+ *     responses:
+ *       200:
+ *         description: List of bookings with the given status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Booking'
+ *                 count:
+ *                   type: number
+ *       500:
+ *         description: Server error
+ */
+router.get("/status/:status", getBookingsByStatus);
+
 /**
  * @swagger
  * /bookings/{id}:
@@ -262,7 +388,6 @@ router.get("/:id", getBookingById);
  *       500:
  *         description: Server error
  */
-router.get("/customer/:customerId", getBookingsByCustomerId);
 
 /**
  * @swagger
@@ -298,7 +423,6 @@ router.get("/customer/:customerId", getBookingsByCustomerId);
  *       500:
  *         description: Server error
  */
-router.get("/driver/:driverId", getBookingsByDriverId);
 
 /**
  * @swagger
@@ -335,7 +459,6 @@ router.get("/driver/:driverId", getBookingsByDriverId);
  *       500:
  *         description: Server error
  */
-router.get("/status/:status", getBookingsByStatus);
 
 /**
  * @swagger

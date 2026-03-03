@@ -7,6 +7,7 @@ export interface IVehicle {
   vehicleName: string;
   vehicleType: String;
   vehicleStatus: boolean;
+  price: number;
   vehicleDetail: IVehicleDetail;
 }
 export interface IVehicleDetail {

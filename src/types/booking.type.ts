@@ -29,6 +29,7 @@ export interface Booking {
   endDate: Date;
   actualReturnDate: Date;
   pickupLocation: string;
+  dropoffLocation: string;
   status: status;
   totalAmount: String;
   depositAmount: String;

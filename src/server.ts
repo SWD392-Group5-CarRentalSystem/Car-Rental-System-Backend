@@ -4,6 +4,7 @@ import swaggerUi from "swagger-ui-express";
 import vehicleRoutes from "./modules/vehicle/routes/vehicle.route";
 import userRoutes from "./modules/user/routes/user.route";
 import bookingRoutes from "./modules/booking/routes/booking.route";
+import paymentRoutes from "./modules/payment/routes/payment.route";
 import connectDB from "./configs/db";
 import { swaggerSpec } from "./configs/swagger";
 import passport from "passport";
@@ -24,6 +25,7 @@ app.use("/api/v1", apiRouter);
 apiRouter.use("/auth", userRoutes);
 apiRouter.use("/vehicle", vehicleRoutes);
 apiRouter.use("/booking", bookingRoutes);
+apiRouter.use("/payment", paymentRoutes);
 
 //connectDB
 connectDB();

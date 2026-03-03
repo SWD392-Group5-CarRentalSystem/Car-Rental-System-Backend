@@ -16,6 +16,11 @@ const vehicleSchema = new Schema<IVehicle>(
       type: Boolean,
       required: true,
     },
+    price: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
     vehicleDetail: {
       vehicleBrands: {
         type: String,

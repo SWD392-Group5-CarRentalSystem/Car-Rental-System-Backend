@@ -1,0 +1,114 @@
+[
+  {
+    "vehicleName": "VinFast VF8",
+    "vehicleType": "SUV",
+    "vehicleStatus": true,
+    "price": 1200,
+    "vehicleDetail": {
+      "vehicleBrands": "VinFast",
+      "vehicleColor": "Trắng",
+      "vehicleLicensePlate": "30A-001.11",
+      "vehicleYear": 2024,
+      "vehicleSeatCount": 5,
+      "vehicleImage": "https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=600"
+    }
+  },
+  {
+    "vehicleName": "VinFast VF9",
+    "vehicleType": "SUV",
+    "vehicleStatus": true,
+    "price": 1500,
+    "vehicleDetail": {
+      "vehicleBrands": "VinFast",
+      "vehicleColor": "Đen",
+      "vehicleLicensePlate": "51A-002.22",
+      "vehicleYear": 2024,
+      "vehicleSeatCount": 7,
+      "vehicleImage": "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=600"
+    }
+  },
+  {
+    "vehicleName": "Tesla Model Y",
+    "vehicleType": "Crossover",
+    "vehicleStatus": true,
+    "price": 1800,
+    "vehicleDetail": {
+      "vehicleBrands": "Tesla",
+      "vehicleColor": "Đỏ",
+      "vehicleLicensePlate": "43A-003.33",
+      "vehicleYear": 2023,
+      "vehicleSeatCount": 5,
+      "vehicleImage": "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600"
+    }
+  },
+  {
+    "vehicleName": "BMW i4",
+    "vehicleType": "Sedan",
+    "vehicleStatus": false,
+    "price": 2000,
+    "vehicleDetail": {
+      "vehicleBrands": "BMW",
+      "vehicleColor": "Xanh dương",
+      "vehicleLicensePlate": "30A-004.44",
+      "vehicleYear": 2023,
+      "vehicleSeatCount": 5,
+      "vehicleImage": "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600"
+    }
+  },
+  {
+    "vehicleName": "Audi e-tron GT",
+    "vehicleType": "Coupe",
+    "vehicleStatus": true,
+    "price": 2500,
+    "vehicleDetail": {
+      "vehicleBrands": "Audi",
+      "vehicleColor": "Bạc",
+      "vehicleLicensePlate": "51A-005.55",
+      "vehicleYear": 2024,
+      "vehicleSeatCount": 4,
+      "vehicleImage": "https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=600"
+    }
+  },
+  {
+    "vehicleName": "Hyundai Ioniq 5",
+    "vehicleType": "Crossover",
+    "vehicleStatus": true,
+    "price": 1300,
+    "vehicleDetail": {
+      "vehicleBrands": "Hyundai",
+      "vehicleColor": "Trắng",
+      "vehicleLicensePlate": "65A-006.66",
+      "vehicleYear": 2023,
+      "vehicleSeatCount": 5,
+      "vehicleImage": "https://images.unsplash.com/photo-1609893700969-66dc25e1e275?w=600"
+    }
+  },
+  {
+    "vehicleName": "Kia EV6",
+    "vehicleType": "Crossover",
+    "vehicleStatus": true,
+    "price": 1100,
+    "vehicleDetail": {
+      "vehicleBrands": "Kia",
+      "vehicleColor": "Xám",
+      "vehicleLicensePlate": "15A-007.77",
+      "vehicleYear": 2023,
+      "vehicleSeatCount": 5,
+      "vehicleImage": "https://images.unsplash.com/photo-1593941707882-a5bac6861d75?w=600"
+    }
+  },
+  {
+    "vehicleName": "Porsche Taycan",
+    "vehicleType": "Sedan",
+    "vehicleStatus": false,
+    "price": 3000,
+    "vehicleDetail": {
+      "vehicleBrands": "Porsche",
+      "vehicleColor": "Vàng",
+      "vehicleLicensePlate": "30A-008.88",
+      "vehicleYear": 2024,
+      "vehicleSeatCount": 4,
+      "vehicleImage": "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600"
+    }
+  }
+]

@@ -37,6 +37,10 @@ const bookingSchema = new Schema<Booking>(
       type: String,
       required: true,
     },
+    dropoffLocation: {
+      type: String,
+      required: true,
+    },
     status: {
       type: String,
       enum: [
