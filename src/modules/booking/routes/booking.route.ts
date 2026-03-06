@@ -11,6 +11,10 @@ import {
   deleteBooking,
   customerConfirmDepositTransfer,
   staffConfirmDepositReceived,
+  assignDriver,
+  getDriversAvailability,
+  driverAcceptBooking,
+  driverRejectBooking,
 } from "../controllers/booking.controller";
 
 const router = express.Router();
@@ -319,6 +323,9 @@ router.get("/driver/:driverId", getBookingsByDriverId);
  *         description: Server error
  */
 router.get("/status/:status", getBookingsByStatus);
+
+// Must be before /:id to avoid route collision
+router.get("/drivers-availability", getDriversAvailability);
 
 /**
  * @swagger
@@ -676,5 +683,135 @@ router.patch("/:id/customer-confirm-deposit", customerConfirmDepositTransfer);
  *         description: Server error
  */
 router.patch("/:id/staff-confirm-deposit", staffConfirmDepositReceived);
+
+/**
+ * @swagger
+ * /booking/drivers-availability:
+ *   get:
+ *     summary: Lấy danh sách tài xế kèm trạng thái bận trong khung thời gian
+ *     tags: [Booking]
+ *     parameters:
+ *       - in: query
+ *         name: startDate
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Ngày bắt đầu
+ *       - in: query
+ *         name: endDate
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Ngày kết thúc
+ *     responses:
+ *       200:
+ *         description: Danh sách tài xế với trường isBusy
+ */
+// router registered above before /:id route to avoid collision
+
+/**
+ * @swagger
+ * /booking/{id}/assign-driver:
+ *   patch:
+ *     summary: Chỉ định tài xế cho đơn đặt xe (Staff)
+ *     tags: [Booking]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Booking ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - driverId
+ *             properties:
+ *               driverId:
+ *                 type: string
+ *                 example: "67a1b2c3d4e5f6789abc0123"
+ *     responses:
+ *       200:
+ *         description: Chỉ định tài xế thành công
+ *       409:
+ *         description: Tài xế đã có lịch trong khung thời gian này
+ *       404:
+ *         description: Booking not found
+ */
+router.patch("/:id/assign-driver", assignDriver);
+
+/**
+ * @swagger
+ * /booking/{id}/driver-accept:
+ *   patch:
+ *     summary: Driver đồng ý nhận lịch được phân công
+ *     tags: [Booking]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - driverId
+ *             properties:
+ *               driverId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Đồng ý nhận lịch thành công
+ *       400:
+ *         description: Không được phân công hoặc đã phản hồi rồi
+ *       404:
+ *         description: Booking not found
+ */
+router.patch("/:id/driver-accept", driverAcceptBooking);
+
+/**
+ * @swagger
+ * /booking/{id}/driver-reject:
+ *   patch:
+ *     summary: Driver từ chối lịch được phân công
+ *     tags: [Booking]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - driverId
+ *             properties:
+ *               driverId:
+ *                 type: string
+ *               reason:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Từ chối lịch thành công
+ *       400:
+ *         description: Không được phân công hoặc đã phản hồi rồi
+ *       404:
+ *         description: Booking not found
+ */
+router.patch("/:id/driver-reject", driverRejectBooking);
 
 export default router;

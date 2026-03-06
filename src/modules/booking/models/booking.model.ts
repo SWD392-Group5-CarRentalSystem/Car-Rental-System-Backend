@@ -81,6 +81,16 @@ const bookingSchema = new Schema<Booking>(
     depositConfirmedAt: {
       type: Date,
     },
+    driverStatus: {
+      type: String,
+      enum: ["pending_driver", "accepted", "rejected"],
+    },
+    driverRespondedAt: {
+      type: Date,
+    },
+    driverRejectReason: {
+      type: String,
+    },
   },
   {
     timestamps: true,

@@ -19,6 +19,8 @@ type depositStatus =
   | "refunded"
   | "lost";
 
+type driverStatus = "pending_driver" | "accepted" | "rejected";
+
 export interface Booking {
   _id: ObjectId;
   customerId: ObjectId;
@@ -36,4 +38,7 @@ export interface Booking {
   depositStatus: depositStatus;
   depositTransferredAt?: Date;
   depositConfirmedAt?: Date;
+  driverStatus?: driverStatus;
+  driverRespondedAt?: Date;
+  driverRejectReason?: string;
 }
