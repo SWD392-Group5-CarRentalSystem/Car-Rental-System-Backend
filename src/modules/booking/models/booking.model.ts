@@ -91,6 +91,19 @@ const bookingSchema = new Schema<Booking>(
     driverRejectReason: {
       type: String,
     },
+    vehicleReceivedBy: {
+      type: String,
+      enum: ["driver", "customer"],
+    },
+    contractFileUrl: {
+      type: String,
+    },
+    contractFileName: {
+      type: String,
+    },
+    contractUploadedAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,

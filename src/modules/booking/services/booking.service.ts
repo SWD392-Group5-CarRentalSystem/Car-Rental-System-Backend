@@ -209,7 +209,11 @@ export const bookingService = {
   },
 
   // Driver rejects assigned booking
-  async driverRejectBooking(bookingId: string, driverId: string, reason?: string) {
+  async driverRejectBooking(
+    bookingId: string,
+    driverId: string,
+    reason?: string,
+  ) {
     try {
       const booking = await BookingModel.findById(bookingId);
       if (!booking) throw new Error("Booking not found");
@@ -261,6 +265,47 @@ export const bookingService = {
         ...driver.toObject(),
         isBusy: busyDriverIds.has(String(driver._id)),
       }));
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Driver or customer receives vehicle with contract proof
+  async receiveVehicleWithContract(
+    bookingId: string,
+    receiverRole: "driver" | "customer",
+    contractFileUrl: string,
+    contractFileName: string,
+  ) {
+    try {
+      const booking = await BookingModel.findById(bookingId);
+      if (!booking) throw new Error("Booking not found");
+
+      if (!["confirmed", "vehicle_delivered"].includes(booking.status)) {
+        throw new Error("Booking chưa ở trạng thái có thể nhận xe");
+      }
+
+      if (receiverRole === "driver" && booking.rentalType !== "with_driver") {
+        throw new Error("Đơn self-drive không thể chọn tài xế nhận xe");
+      }
+
+      const updated = await BookingModel.findByIdAndUpdate(
+        bookingId,
+        {
+          status: "in_progress",
+          vehicleReceivedBy: receiverRole,
+          contractFileUrl,
+          contractFileName,
+          contractUploadedAt: new Date(),
+        },
+        { new: true, runValidators: true },
+      )
+        .populate("customerId", "username email phoneNumber")
+        .populate("vehicleId", "vehicleName vehicleType price vehicleDetail")
+        .populate("driverId", "username phoneNumber Rating");
+
+      if (!updated) throw new Error("Booking not found");
+      return updated;
     } catch (error) {
       throw error;
     }

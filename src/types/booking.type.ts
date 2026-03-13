@@ -20,6 +20,7 @@ type depositStatus =
   | "lost";
 
 type driverStatus = "pending_driver" | "accepted" | "rejected";
+type vehicleReceivedBy = "driver" | "customer";
 
 export interface Booking {
   _id: ObjectId;
@@ -41,4 +42,8 @@ export interface Booking {
   driverStatus?: driverStatus;
   driverRespondedAt?: Date;
   driverRejectReason?: string;
+  vehicleReceivedBy?: vehicleReceivedBy;
+  contractFileUrl?: string;
+  contractFileName?: string;
+  contractUploadedAt?: Date;
 }

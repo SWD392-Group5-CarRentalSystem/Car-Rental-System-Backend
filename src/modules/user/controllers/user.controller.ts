@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { User, Staff, Driver } from "../models/user.model";
 import generateToken from "../../../utils/generateToken";
-import { customerService, driverService, staffService } from "../services/user.service";
+import {
+  customerService,
+  driverService,
+  staffService,
+} from "../services/user.service";
 //------------------------------Auth------------------------------
 export const registerUser = async (
   req: Request,
@@ -10,12 +14,33 @@ export const registerUser = async (
 ): Promise<any> => {
   const { username, email, phoneNumber, DOB, password, role } = req.body;
   try {
+    if (!username || !email || !phoneNumber || !DOB || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields",
+      });
+    }
+
     let user = await User.findOne({ email });
     let existingStaff = await Staff.findOne({ email });
     let existingDriver = await Driver.findOne({ email });
     if (user || existingStaff || existingDriver) {
-      res.status(400).json({ message: "Email already exists" });
+      return res.status(400).json({
+        success: false,
+        message: "Email already exists",
+      });
     }
+
+    const existingPhoneInUser = await User.findOne({ phoneNumber });
+    const existingPhoneInStaff = await Staff.findOne({ phoneNumber });
+    const existingPhoneInDriver = await Driver.findOne({ phoneNumber });
+    if (existingPhoneInUser || existingPhoneInStaff || existingPhoneInDriver) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number already exists",
+      });
+    }
+
     user = new User({ username, email, DOB, phoneNumber, password, role });
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
@@ -25,12 +50,23 @@ export const registerUser = async (
     // const token = generateToken(user)
 
     res.status(201).json({
+      success: true,
       message: "register succesfully",
       // token
     });
-  } catch (err) {
+  } catch (err: any) {
+    if (err?.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "Email or phone number already exists",
+      });
+    }
+
     console.log(err);
-    res.status(500).send("server error at resigter");
+    return res.status(500).json({
+      success: false,
+      message: "Server error at register",
+    });
   }
 };
 export const loginUser = async (req: Request, res: Response): Promise<any> => {

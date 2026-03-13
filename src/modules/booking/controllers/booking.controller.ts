@@ -353,7 +353,10 @@ export const assignDriver = async (
       });
     }
 
-    const updatedBooking = await bookingService.assignDriver(id as string, String(driverId));
+    const updatedBooking = await bookingService.assignDriver(
+      id as string,
+      String(driverId),
+    );
     return res.status(200).json({
       success: true,
       message: "Tài xế đã được chỉ định thành công",
@@ -362,7 +365,9 @@ export const assignDriver = async (
   } catch (error: any) {
     console.error("Error assigning driver:", error);
     if (error.message === "Booking not found") {
-      return res.status(404).json({ success: false, message: "Booking not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found" });
     }
     if (error.message === "Tài xế đã có lịch trong khung thời gian này") {
       return res.status(409).json({ success: false, message: error.message });
@@ -384,10 +389,15 @@ export const driverAcceptBooking = async (
     const { driverId } = req.body;
 
     if (!driverId) {
-      return res.status(400).json({ success: false, message: "driverId là bắt buộc" });
+      return res
+        .status(400)
+        .json({ success: false, message: "driverId là bắt buộc" });
     }
 
-    const updated = await bookingService.driverAcceptBooking(id as string, String(driverId));
+    const updated = await bookingService.driverAcceptBooking(
+      id as string,
+      String(driverId),
+    );
     return res.status(200).json({
       success: true,
       message: "Bạn đã đồng ý nhận lịch thành công",
@@ -396,10 +406,20 @@ export const driverAcceptBooking = async (
   } catch (error: any) {
     console.error("Error driver accepting booking:", error);
     if (error.message === "Booking not found")
-      return res.status(404).json({ success: false, message: "Booking not found" });
-    if (error.message === "Bạn không được phân công cho đơn này" || error.message === "Bạn đã đồng ý đơn này rồi")
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found" });
+    if (
+      error.message === "Bạn không được phân công cho đơn này" ||
+      error.message === "Bạn đã đồng ý đơn này rồi"
+    )
       return res.status(400).json({ success: false, message: error.message });
-    return res.status(500).json({ success: false, message: error.message || "Lỗi khi đồng ý lịch" });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: error.message || "Lỗi khi đồng ý lịch",
+      });
   }
 };
 
@@ -413,10 +433,16 @@ export const driverRejectBooking = async (
     const { driverId, reason } = req.body;
 
     if (!driverId) {
-      return res.status(400).json({ success: false, message: "driverId là bắt buộc" });
+      return res
+        .status(400)
+        .json({ success: false, message: "driverId là bắt buộc" });
     }
 
-    const updated = await bookingService.driverRejectBooking(id as string, String(driverId), reason);
+    const updated = await bookingService.driverRejectBooking(
+      id as string,
+      String(driverId),
+      reason,
+    );
     return res.status(200).json({
       success: true,
       message: "Bạn đã từ chối lịch. Đơn sẽ chờ staff phân công lại.",
@@ -425,10 +451,20 @@ export const driverRejectBooking = async (
   } catch (error: any) {
     console.error("Error driver rejecting booking:", error);
     if (error.message === "Booking not found")
-      return res.status(404).json({ success: false, message: "Booking not found" });
-    if (error.message === "Bạn không được phân công cho đơn này" || error.message === "Bạn đã từ chối đơn này rồi")
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found" });
+    if (
+      error.message === "Bạn không được phân công cho đơn này" ||
+      error.message === "Bạn đã từ chối đơn này rồi"
+    )
       return res.status(400).json({ success: false, message: error.message });
-    return res.status(500).json({ success: false, message: error.message || "Lỗi khi từ chối lịch" });
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: error.message || "Lỗi khi từ chối lịch",
+      });
   }
 };
 
@@ -468,6 +504,64 @@ export const getDriversAvailability = async (
     return res.status(500).json({
       success: false,
       message: error.message || "Lỗi khi lấy danh sách tài xế",
+    });
+  }
+};
+
+// PATCH /booking/:id/receive-vehicle — Driver/Customer nhận xe và upload hợp đồng
+export const receiveVehicle = async (
+  req: Request,
+  res: Response,
+): Promise<any> => {
+  try {
+    const requestWithFile = req as Request & { file?: Express.Multer.File };
+    const { id } = req.params;
+    const { receiverRole } = req.body;
+
+    if (receiverRole !== "driver" && receiverRole !== "customer") {
+      return res.status(400).json({
+        success: false,
+        message: "receiverRole phải là driver hoặc customer",
+      });
+    }
+
+    if (!requestWithFile.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Cần upload ảnh/file hợp đồng trước khi nhận xe",
+      });
+    }
+
+    const contractFileUrl = `${req.protocol}://${req.get("host")}/uploads/contracts/${requestWithFile.file.filename}`;
+
+    const updatedBooking = await bookingService.receiveVehicleWithContract(
+      id as string,
+      receiverRole,
+      contractFileUrl,
+      requestWithFile.file.originalname,
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Nhận xe thành công và đã lưu hợp đồng",
+      data: updatedBooking,
+    });
+  } catch (error: any) {
+    console.error("Error receiving vehicle:", error);
+    if (error.message === "Booking not found") {
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found" });
+    }
+    if (
+      error.message === "Booking chưa ở trạng thái có thể nhận xe" ||
+      error.message === "Đơn self-drive không thể chọn tài xế nhận xe"
+    ) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Lỗi khi nhận xe",
     });
   }
 };

@@ -15,7 +15,9 @@ import {
   getDriversAvailability,
   driverAcceptBooking,
   driverRejectBooking,
+  receiveVehicle,
 } from "../controllers/booking.controller";
+import { uploadContract } from "../../../middlewares/uploadContract";
 
 const router = express.Router();
 
@@ -813,5 +815,47 @@ router.patch("/:id/driver-accept", driverAcceptBooking);
  *         description: Booking not found
  */
 router.patch("/:id/driver-reject", driverRejectBooking);
+
+/**
+ * @swagger
+ * /booking/{id}/receive-vehicle:
+ *   patch:
+ *     summary: Tài xế hoặc khách nhận xe (bắt buộc upload hợp đồng)
+ *     tags: [Booking]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - receiverRole
+ *               - contractFile
+ *             properties:
+ *               receiverRole:
+ *                 type: string
+ *                 enum: [driver, customer]
+ *               contractFile:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Nhận xe thành công
+ *       400:
+ *         description: Thiếu file hợp đồng hoặc dữ liệu không hợp lệ
+ *       404:
+ *         description: Booking not found
+ */
+router.patch(
+  "/:id/receive-vehicle",
+  uploadContract.single("contractFile"),
+  receiveVehicle,
+);
 
 export default router;
