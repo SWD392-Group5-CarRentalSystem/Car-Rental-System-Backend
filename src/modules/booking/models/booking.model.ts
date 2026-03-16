@@ -49,6 +49,7 @@ const bookingSchema = new Schema<Booking>(
         "confirmed",
         "vehicle_delivered",
         "in_progress",
+        "transporting",
         "vehicle_returned",
         "completed",
         "cancelled",

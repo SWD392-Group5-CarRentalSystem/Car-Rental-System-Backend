@@ -1,5 +1,5 @@
 import express from "express";
-import { createVnpayUrl, vnpayIPN, vnpayReturn } from "../controllers/payment.controller";
+import { createVnpayUrl, createRemainingUrl, vnpayIPN, vnpayReturn } from "../controllers/payment.controller";
 
 const router = express.Router();
 
@@ -42,6 +42,7 @@ const router = express.Router();
  *                       type: string
  */
 router.post("/vnpay/create-url", createVnpayUrl);
+router.post("/vnpay/create-remaining-url", createRemainingUrl);
 
 /**
  * @swagger

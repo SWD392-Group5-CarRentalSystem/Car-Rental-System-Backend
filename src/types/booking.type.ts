@@ -7,6 +7,7 @@ type status =
   | "confirmed"
   | "vehicle_delivered"
   | "in_progress"
+  | "transporting"
   | "vehicle_returned"
   | "completed"
   | "cancelled"
