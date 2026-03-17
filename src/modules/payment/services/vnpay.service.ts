@@ -42,6 +42,28 @@ export const vnpayService = {
   },
 
   /**
+   * Tạo VNPay payment URL cho thanh toán số tiền còn lại (sau khi kết thúc hành trình)
+   */
+  createRemainingPaymentUrl(bookingId: string, remainingAmount: number, ipAddr: string, role: string = 'driver'): string {
+    // Dùng TxnRef khác để tránh VNPay từ chối trùng giao dịch (đã dùng bookingId cho cọc)
+    const txnRef = bookingId + "_r";
+    const paymentUrl = vnpay.buildPaymentUrl({
+      vnp_Amount: remainingAmount,
+      vnp_IpAddr: ipAddr || "127.0.0.1",
+      vnp_TxnRef: txnRef,
+      vnp_OrderInfo: `remaining:${bookingId}:${role}`,
+      vnp_OrderType: ProductCode.Other,
+      vnp_ReturnUrl: config.VNP_RETURN_URL,
+      vnp_Locale: VnpLocale.VN,
+    });
+    console.log("[VNPay] createRemainingPaymentUrl =>");
+    console.log("  Amount   :", remainingAmount, "VND (remaining)");
+    console.log("  TxnRef   :", txnRef);
+    console.log("  Role     :", role);
+    return paymentUrl;
+  },
+
+  /**
    * Xử lý return URL — VNPay redirect user về BE, BE verify rồi redirect FE
    */
   async handleReturn(query: Record<string, string>): Promise<{
@@ -50,6 +72,8 @@ export const vnpayService = {
     bookingId: string;
     transactionNo: string;
     amount: number;
+    isRemainingPayment: boolean;
+    payerRole: string | null;
   }> {
     console.log("[VNPay] handleReturn query:", JSON.stringify(query));
 
@@ -57,6 +81,13 @@ export const vnpayService = {
     const txnRef = query["vnp_TxnRef"] || "";
     const transactionNo = query["vnp_TransactionNo"] || "";
     const rawAmount = Number(query["vnp_Amount"] || "0") / 100;
+    const orderInfo = query["vnp_OrderInfo"] || "";
+    const isRemainingPayment = orderInfo.startsWith("remaining:");
+    // Với remaining payment, bookingId thực nằm trong OrderInfo (TxnRef là bookingId+"_r")
+    // Format: remaining:bookingId:role
+    const orderParts = orderInfo.split(":");
+    const actualBookingId = isRemainingPayment ? orderParts[1] : txnRef;
+    const payerRole = isRemainingPayment ? (orderParts[2] ?? "driver") : null;
 
     let isVerified = false;
     try {
@@ -71,18 +102,25 @@ export const vnpayService = {
     const success = isVerified && responseCode === "00";
 
     if (success) {
-      const booking = await BookingModel.findById(txnRef);
-      if (booking && booking.depositStatus !== "confirmed") {
-        await BookingModel.findByIdAndUpdate(txnRef, {
-          status: "confirmed",
-          depositStatus: "confirmed",
-          depositTransferredAt: new Date(),
-        });
-        console.log("[VNPay] Booking confirmed:", txnRef);
+      const booking = await BookingModel.findById(actualBookingId);
+      if (isRemainingPayment) {
+        if (booking && booking.status !== "completed") {
+          await BookingModel.findByIdAndUpdate(actualBookingId, { status: "completed" });
+          console.log("[VNPay] Booking completed (remaining paid):", actualBookingId);
+        }
+      } else {
+        if (booking && booking.depositStatus !== "confirmed") {
+          await BookingModel.findByIdAndUpdate(actualBookingId, {
+            status: "confirmed",
+            depositStatus: "confirmed",
+            depositTransferredAt: new Date(),
+          });
+          console.log("[VNPay] Booking confirmed (deposit):", actualBookingId);
+        }
       }
     }
 
-    return { success, responseCode, bookingId: txnRef, transactionNo, amount: rawAmount };
+    return { success, responseCode, bookingId: actualBookingId, transactionNo, amount: rawAmount, isRemainingPayment, payerRole };
   },
 
   /**
@@ -105,23 +143,37 @@ export const vnpayService = {
     const txnRef = query["vnp_TxnRef"];
     const responseCode = query["vnp_ResponseCode"];
     const transactionStatus = query["vnp_TransactionStatus"];
+    const orderInfo = query["vnp_OrderInfo"] || "";
+    const isRemainingPayment = orderInfo.startsWith("remaining:");
+    const actualBookingId = isRemainingPayment ? orderInfo.split(":")[1] : txnRef;
 
-    const booking = await BookingModel.findById(txnRef);
+    const booking = await BookingModel.findById(actualBookingId);
     if (!booking) return { RspCode: "01", Message: "Order not found" };
-    if (booking.depositStatus === "confirmed") return { RspCode: "02", Message: "Order already confirmed" };
+
+    if (isRemainingPayment) {
+      if (booking.status === "completed") return { RspCode: "02", Message: "Order already completed" };
+    } else {
+      if (booking.depositStatus === "confirmed") return { RspCode: "02", Message: "Order already confirmed" };
+    }
 
     if (responseCode === "00" && transactionStatus === "00") {
-      await BookingModel.findByIdAndUpdate(txnRef, {
-        status: "confirmed",
-        depositStatus: "confirmed",
-        depositTransferredAt: new Date(),
-      });
+      if (isRemainingPayment) {
+        await BookingModel.findByIdAndUpdate(actualBookingId, { status: "completed" });
+      } else {
+        await BookingModel.findByIdAndUpdate(actualBookingId, {
+          status: "confirmed",
+          depositStatus: "confirmed",
+          depositTransferredAt: new Date(),
+        });
+      }
       return { RspCode: "00", Message: "Success" };
     } else {
-      await BookingModel.findByIdAndUpdate(txnRef, {
-        status: "cancelled",
-        depositStatus: "not_paid",
-      });
+      if (!isRemainingPayment) {
+        await BookingModel.findByIdAndUpdate(actualBookingId, {
+          status: "cancelled",
+          depositStatus: "not_paid",
+        });
+      }
       return { RspCode: "00", Message: "Acknowledged" };
     }
   },

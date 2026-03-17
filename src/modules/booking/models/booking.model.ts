@@ -49,6 +49,7 @@ const bookingSchema = new Schema<Booking>(
         "confirmed",
         "vehicle_delivered",
         "in_progress",
+        "transporting",
         "vehicle_returned",
         "completed",
         "cancelled",
@@ -90,6 +91,19 @@ const bookingSchema = new Schema<Booking>(
     },
     driverRejectReason: {
       type: String,
+    },
+    vehicleReceivedBy: {
+      type: String,
+      enum: ["driver", "customer"],
+    },
+    contractFileUrl: {
+      type: String,
+    },
+    contractFileName: {
+      type: String,
+    },
+    contractUploadedAt: {
+      type: Date,
     },
   },
   {

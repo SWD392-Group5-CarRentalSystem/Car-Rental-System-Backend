@@ -1,5 +1,7 @@
 import swaggerJsdoc from "swagger-jsdoc";
 
+const port = process.env.PORT || "3000";
+
 const options: swaggerJsdoc.Options = {
   definition: {
     openapi: "3.0.0",
@@ -14,12 +16,13 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: "http://localhost:3000/api/v1",
-        description: "Development server",
+        // Relative URL helps Swagger call the same host/port where docs are being served.
+        url: "/api/v1",
+        description: "Current server",
       },
       {
-        url: "https://api.carrental.com/api/v1",
-        description: "Production server",
+        url: `http://localhost:${port}/api/v1`,
+        description: "Local development",
       },
     ],
     components: {
