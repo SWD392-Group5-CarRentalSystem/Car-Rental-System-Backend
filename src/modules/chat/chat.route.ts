@@ -27,6 +27,8 @@ interface ConversationContext {
   hasDriver?: boolean;
   requestedVehicleName?: string;
   requestedBrand?: string;
+  maxPrice?: number;
+  minPrice?: number;
 }
 
 interface SuggestedVehicle {
@@ -312,6 +314,55 @@ const extractContextFromMessage = (
     }
   }
 
+  // Extract price requirements
+  const pricePatterns = [
+    /duoi\s*(\d+)\s*(trieu|tr)/i,
+    /toi\s*da\s*(\d+)\s*(trieu|tr)/i,
+    /khong\s*qua\s*(\d+)\s*(trieu|tr)/i,
+    /nho\s*hon\s*(\d+)\s*(trieu|tr)/i,
+  ];
+
+  for (const pattern of pricePatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      const priceValue = Number(match[1]);
+      if (priceValue > 0) {
+        next.maxPrice = priceValue; // Store in millions (triệu)
+      }
+      break;
+    }
+  }
+
+  // Extract price range first (e.g., "từ 1 đến 2 triệu")
+  const rangePricePattern = /tu\s*(\d+)\s*den\s*(\d+)\s*(trieu|tr)/i;
+  const rangeMatch = text.match(rangePricePattern);
+  if (rangeMatch) {
+    const minValue = Number(rangeMatch[1]);
+    const maxValue = Number(rangeMatch[2]);
+    if (minValue > 0) next.minPrice = minValue;
+    if (maxValue > 0) next.maxPrice = maxValue;
+  } else {
+    // Extract minimum price (only if not a range)
+    // Use strict "greater than" by adding 0.001 to create > instead of >=
+    const minPricePatterns = [
+      /tren\s*(\d+)\s*(trieu|tr)/i,        // trên X triệu → strict >
+      /lon\s*hon\s*(\d+)\s*(trieu|tr)/i,   // lớn hơn X triệu → strict >
+      /cao\s*hon\s*(\d+)\s*(trieu|tr)/i,   // cao hơn X triệu → strict >
+    ];
+
+    for (const pattern of minPricePatterns) {
+      const match = text.match(pattern);
+      if (match) {
+        const priceValue = Number(match[1]);
+        if (priceValue > 0) {
+          // Add 0.001 to make it strict > instead of >=
+          next.minPrice = priceValue + 0.001;
+        }
+        break;
+      }
+    }
+  }
+
   return mergeContext(current, next);
 };
 
@@ -403,6 +454,23 @@ const findMatchingVehicles = async (
         (v) => !v.seats || v.seats >= (context.seatsNeeded || 0)
       );
       if (bySeats.length > 0) filtered = bySeats;
+    }
+
+    // Filter by price range (convert triệu to nghìn for comparison)
+    if (context.maxPrice !== undefined) {
+      const maxPriceInThousands = context.maxPrice * 1000; // Convert triệu to nghìn
+      const byMaxPrice = filtered.filter(
+        (v) => !v.price || v.price <= maxPriceInThousands
+      );
+      if (byMaxPrice.length > 0) filtered = byMaxPrice;
+    }
+
+    if (context.minPrice !== undefined) {
+      const minPriceInThousands = context.minPrice * 1000; // Convert triệu to nghìn
+      const byMinPrice = filtered.filter(
+        (v) => v.price && v.price >= minPriceInThousands
+      );
+      if (byMinPrice.length > 0) filtered = byMinPrice;
     }
 
     filtered = filtered
